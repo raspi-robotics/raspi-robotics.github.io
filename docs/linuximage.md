@@ -11,11 +11,35 @@ To make sure you are compiling this specific version, swap out their **Get the K
     
     git clone --depth=1 https://github.com/raspberrypi/linux --branch rpi-6.1.y
 
+*Note this process is time consuming. 
+I used a virtual machine running Ubuntu 22.04 and it took roughly an hour to compile. However, this is still far far far faster than attempting to compile on the Pi itself.* 
 
+Once the cross-compilation is complete, insert your SD card into your Pi and boot it up. 
+Be sure to run 
 
+    sudo apt update 
+    
+and then
 
+    sudo apt upgrade 
+
+You will encounter a notification every time you run apt that your kernel is not the expected version and you should reboot. 
+This is expected because we are using the rpi-6.1 kernel and Ubuntu 22.04 expects rpi-5.15.
+To get rid of this error, you can remove the application that checks to see if you need to restart your system after a new installation. 
+However, please do this with caution and reboot your Pi whenever you install applications or services that may impact system operations as apt will no longer run this check for you. 
+
+    sudo apt-get purge needrestart 
+
+# Installing a Desktop Environment
+After testing both the full Ubuntu desktop as well as lightweight versions xubuntu and lubuntu, I recommend installing xubuntu as it boots without issue and provides a much faster experience than the full desktop. 
+I was unable to get lubuntu to boot into the desktop environment, but [this blog](https://waldorf.waveform.org.uk/2020/ubuntu-desktops-on-the-pi.html) that Ubuntu cites highly recommends lubuntu, so do with that what you will. 
+
+For xubuntu, I also tested both the full desktop and the core. I found the core version did everything I needed, and this way I was able to customize add on applications to save space. 
 sudo apt-get install xubuntu-core^
-sudo apt-get purge needrestart
+
+
+
+
 
 
 
