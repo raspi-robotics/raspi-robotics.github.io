@@ -14,7 +14,7 @@ See the [home page](https://raspi-robotics.github.io) for a list of hardware and
 
 Last Updated: March 26, 2023
 
-# Installing Ubuntu 22.04
+## Installing Ubuntu 22.04
 Use the Raspberry Pi Imager to install Ubuntu Server 22.04 LTS (64-BIT)
 
 ## Compiling a New Linux Kernel
