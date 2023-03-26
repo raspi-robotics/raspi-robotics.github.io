@@ -3,8 +3,14 @@ layout: page
 title: Linux Image
 permalink: /linuximage/
 ---
-The following instructions walk you through imaging an SD card running Ubuntu 22.04 for a Raspberry Pi. 
-This has been tested on both 2GB and 8GB Raspberry Pi 4B computers. 
+The following instructions walk you through imaging an SD card running Ubuntu 22.04 with a new kernel and VNC capabilities for a Raspberry Pi. 
+Why you ask?
+Well, the Raspberry Pi Camera Module 3 that we will be using is brand new (released January 2023, I ordered at launch), and as a result, there is limited documentation on how to use it with Pis that aren't running Raspberry Pi OS. 
+One of my first discoveries was that this new module is ONLY set up to work with the libcamera library, which means the legacy RPi camera stack that uses Video4Linux (v4l2) drivers will not work. 
+After many many hours of troubleshooting, I determined that the updates needed to get this camera to work on Ubuntu are only found in RPi's linux kernel version 6+ and the Ubuntu 22.04 images for the Pi are kernel version 5.15. 
+Therefore, we embark on a journey to create a custom image to get our hardware to work as intended. 
+
+See the [home page](https://raspi-robotics.github.io) for a list of hardware and the detailed purpose of this site.
 
 Last Updated: March 26, 2023
 
@@ -12,8 +18,6 @@ Last Updated: March 26, 2023
 Use the Raspberry Pi Imager to install Ubuntu Server 22.04 LTS (64-BIT)
 
 ## Compiling a New Linux Kernel
-(ADD EXPLANATION)
-
 Follow the instructions from the [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/computers/linux_kernel.html#cross-compiling-the-kernel) to cross-compile a newer version of their linux kernel [rpi-6.1.y](https://github.com/raspberrypi/linux). 
 To make sure you are compiling this specific version, swap out their **Get the Kernel Sources** command with 
     
