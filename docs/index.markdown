@@ -18,4 +18,4 @@ Key Hardware:
 
 Current Instructions:
 
-- Start here - [Setting up Ubuntu Server 22.04](../linuximage) 
+- Start here - [Setting up Ubuntu Server 22.04](https://raspi-robotics.github.io/linuximage/) 
