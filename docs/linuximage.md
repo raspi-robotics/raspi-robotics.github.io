@@ -3,6 +3,16 @@ layout: page
 title: Linux Image
 permalink: /linuximage/
 ---
+# Installing Ubuntu 22.04
+Use the Raspberry Pi Imager to install Ubuntu Server 22.04 LTS (64-BIT)
+
+Follow the instructions from the [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/computers/linux_kernel.html#cross-compiling-the-kernel) to cross-compile a newer version of their linux kernel [rpi-6.1.y](https://github.com/raspberrypi/linux). 
+To make sure you are compiling this specific version, swap out their **Get the Kernel Sources** command with 
+    
+    git clone --depth=1 https://github.com/raspberrypi/linux --branch rpi-6.1.y
+
+
+
 
 sudo apt-get install xubuntu-core^
 sudo apt-get purge needrestart
