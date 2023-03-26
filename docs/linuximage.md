@@ -3,8 +3,16 @@ layout: page
 title: Linux Image
 permalink: /linuximage/
 ---
+The following instructions walk you through imaging an SD card running Ubuntu 22.04 for a Raspberry Pi. 
+This has been tested on both 2GB and 8GB Raspberry Pi 4B computers. 
+
+Last Updated: March 26, 2023
+
 # Installing Ubuntu 22.04
 Use the Raspberry Pi Imager to install Ubuntu Server 22.04 LTS (64-BIT)
+
+## Compiling a New Linux Kernel
+(ADD EXPLANATION)
 
 Follow the instructions from the [Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/computers/linux_kernel.html#cross-compiling-the-kernel) to cross-compile a newer version of their linux kernel [rpi-6.1.y](https://github.com/raspberrypi/linux). 
 To make sure you are compiling this specific version, swap out their **Get the Kernel Sources** command with 
@@ -28,112 +36,96 @@ This is expected because we are using the rpi-6.1 kernel and Ubuntu 22.04 expect
 To get rid of this error, you can remove the application that checks to see if you need to restart your system after a new installation. 
 However, please do this with caution and reboot your Pi whenever you install applications or services that may impact system operations as apt will no longer run this check for you. 
 
-    sudo apt-get purge needrestart 
+    sudo apt-get purge needrestart
 
-# Installing a Desktop Environment
+Finally, I always like to have the option to use `ifconfig` to obtain networking information, but this tool doesn't come pre-installed on the Ubuntu Server. 
+Now is a good time to install it by running:
+
+    sudo apt install net-tools
+
+Finally, reboot your Pi before proceeding. 
+
+## Installing a Desktop Environment
 After testing both the full Ubuntu desktop as well as lightweight versions xubuntu and lubuntu, I recommend installing xubuntu as it boots without issue and provides a much faster experience than the full desktop. 
 I was unable to get lubuntu to boot into the desktop environment, but [this blog](https://waldorf.waveform.org.uk/2020/ubuntu-desktops-on-the-pi.html) that Ubuntu cites highly recommends lubuntu, so do with that what you will. 
 
-For xubuntu, I also tested both the full desktop and the core. I found the core version did everything I needed, and this way I was able to customize add on applications to save space. 
-sudo apt-get install xubuntu-core^
+For xubuntu, I also tested both the full desktop and the core. I found the core version did everything I needed, and this way I was able to only install additional applications when needed to save space. 
+
+    sudo apt-get install xubuntu-core^
+
+Once the install is complete, reboot your Pi for the changes to take effect. 
+Neither xubuntu or xubuntu-core will install a familiar web browser by default. 
+I opted to install firefox using:
+
+    sudo apt install firefox
 
 
+## Installing RealVNC Server 
+Since I intend on working with a camera, I find it helpful to have the option to be able use VNC. 
+I tested out TigerVNC and RealVNC, but found RealVNC easier to work with in my specific circumstances. 
+However, installing the RealVNC Server is not trivial because they don't offer a download for an arm64 version on their website. 
+Instead, we'll have to grab the deb package from the Raspberry Pi Archive and install with dpkg. 
+You can do this with the following commands. 
+
+    wget http://archive.raspberrypi.org/debian/pool/main/r/realvnc-vnc/realvnc-vnc-server_7.0.1.49073_arm64.deb
+
+    sudo dpkg -i realvnc-vnc-server_7.0.1.49073_arm64.deb
+
+Note that this is the most updated package available at the time of writing. 
+You can always check for a more recent release by going to the archive and looking for the latest version number - but make sure you are downloading the *server* and that it is *arm64*. 
+
+Once the RealVNC Server has been successfully installed, we must enable and start the related services to make sure our VNC server is up and running and starts at boot. 
+
+    sudo systemctl enable vncserver-virtuald.service
+    sudo systemctl enable vncserver-x11-serviced.service
+    sudo systemctl start vncserver-virtuald.service
+    sudo systemctl start vncserver-x11-serviced.service
+
+You will know the process has completed successfully if you reboot and see a white and blue VNC icon in the upper right section of your task bar. 
+Clicking on this icon will open a panel with your RealVNC connectivity information including your IP address and catchphrase. 
+
+## Setting Up Headless Operation for VNC Use
+All should work perfectly now if you're planning on having a monitor attached to your Pi at all times. 
+But most of us here are planning on using our Pi as part of a robot. 
+This means, in almost all cases, we will not be able to have a monitor attached to our Pi so we have to tell Ubuntu to activate the desktop environment even when there is no monitor attached. 
+To do this, we have to make a few modifications to our `/boot/firmware/config.txt` file. 
+But first, a disclaimer...
+
+*While I run the risk of being ostracized from the engineering community for saying this, I've become quite fond of `nano` as an editor in terminal. 
+I also think that what it lacks in features in makes up for in beginner user-friendliness, and I'm here to teach beginners. 
+So, from here on out, all of my instructions for editing files in terminal will use nano. Gasp!*
+
+Moving on...run the following command to open your boot configuration file. 
+
+    sudo nano /boot/firmware/config.txt
+
+This file may look familiar because you should have modified it as part of the kernel business above.
+At the end of the file, insert the following three lines:
+
+    hdmi_force_hotplug=1
+    framebuffer_width=1920
+    framebuffer_height=1080
+
+These lines ignore the status of the hdmi port and set the resolution for your desktop. 
+Though the forums seem to debate the reason for needing this particular resolution, I have found it to work without issue so I'm sticking with it.  
 
 
+Also, look through and see if you have a line that reads `dtoverlay=vc4-kms-v3d`. 
+If you do (I didn't on a clean install, but some of my older builds do have this and many tutorials will tell you to add it), comment it out so that line reads `# dtoverlay=vc4-kms-v3d`.
 
+Finally, hit CTRL-X, then y, then enter to save the file. 
+Reboot your Pi for the changes to take effect. 
 
-
-Getting Pi Camera 3 to work on Linux
-
-sudo apt install net-tools
-
-**libcamera**
-
-    sudo apt install python3-dev -y
-    sudo apt install meson ninja-build pkg-config -y
-    sudo apt install clang g++ -y
-    sudo apt install libyaml-dev python3-yaml python3-ply python3-jinja2 -y
-    sudo apt install libgnutls28-dev libssl-dev openssl -y
-    sudo apt install libdw-dev libunwind-dev -y
-    sudo apt install libudev-dev -y
-    sudo apt install python3-sphinx doxygen graphviz texlive-latex-extra -y
-    sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev -y
-    sudo apt install libevent-dev -y
-    sudo apt install libdrm-dev libdrm-dev libjpeg-dev libsdl2-dev -y
-    sudo apt install qtbase5-dev libqt5core5a libqt5gui5 libqt5widgets5 qttools5-dev-tools libtiff-dev -y
-sudo apt install liblttng-ust-dev python3-jinja2 lttng-tools -y
-sudo apt-get install libgtest-dev -y
-
-git clone https://github.com/raspberrypi/libcamera.git
-cd libcamera
-meson setup build -Dpycamera=enabled -Dv4l2=true
-ninja -C build install
-
-
-
-**libcamera-apps**
-sudo apt install -y libepoxy-dev libjpeg-dev libtiff5-dev
-sudo apt install -y libavcodec-dev libavdevice-dev libavformat-dev libswresample-dev
-sudo apt install -y libboost-dev
-sudo apt install -y cmake libboost-program-options-dev libexif-dev
-sudo apt install -y libpng-dev
-sudo apt install -y python3-pyqt5 python3-prctl libatlas-base-dev ffmpeg python3-pip python3-opengl
-sudo pip3 install pyyaml ply
-
-git clone https://github.com/raspberrypi/libcamera-apps.git
-cd libcamera-apps
-mkdir build
-cd build
-cmake .. -DENABLE_DRM=1 -DENABLE_X11=1 -DENABLE_QT=1 -DENABLE_OPENCV=0 -DENABLE_TFLITE=0
-make -j4
-sudo make install
-sudo ldconfig
-
-**kmsxx**
-sudo apt install libfmt-dev libev-dev -y
-git clone https://github.com/tomba/kmsxx.git
-cd kmsxx 
-git submodule update --init
-meson build
-ninja -C build
-
-
-**picamera2**
-pip3 install numpy --upgrade
-pip3 install picamera2[gui]
-
-
-export PYTHONPATH="${PYTHONPATH}:/usr/local/lib/aarch64-linux-gnu/python3.10/site-packages"
-
-Go into /home/$USER/.local/lib/python3.10/site-packages/picamera2 and rename utils.py to utils_new.py
-Change line 16 of request.py to `from .utils_new import convert_from_libcamera_type`
-
-In line 25 of picamera2.py remove DrmPreview - I also removed from .previews _init_.py as well
-
-In line 22 of picamera2.py change `import picamera2.utils as utils` to `import picamera2.utils_new as utils`
-
-            preview_table = {Preview.NULL: NullPreview,
-                             Preview.DRM: DrmPreview,
-                             Preview.QT: QtPreview,
-                             Preview.QTGL: QtGlPreview}
-Remove DRM from above table
-
-Eliminate display autodetect starting in line 504 and set preveiw = Preview.QT
-
-opencv
-Follow these instruction explicitly: https://qengineering.eu/install-opencv-4.5-on-raspberry-64-os.html 
-
-tensorflow 
-python3 -m pip install tensorflow
-
-
-Other
-sudo apt install v4l-utils
-v4l2-ctl --list-devices
-sudo apt install i2c-tools
-sudo apt install rpi.gpio-common
-
-**Screensaver Issue**
+## Fixing the Screensaver
+As you use your Pi via VNC, you may notice a strange phenomenon where if you leave the desktop idle for a period of time it stops responding to mouse clicks. 
+Your mouse will still move, but you can't actually do anything anymore. 
+No matter what settings you change on the built in screensaver, this will continue to happen. 
+There is a glitch with the xubuntu screensaver that causes this. 
+So, let's install a screensaver that will actually allow you to disable idle sleep and remove the built-in screensaver that is causing all the trouble. 
 
     sudo apt install XScreensaver
     sudo apt purge xfce4-screensaver
+
+Restart and then look for your screensaver application in your applications menu and within the app disable the screensaver.
+
+BOOM - you now have a fully functional system!
