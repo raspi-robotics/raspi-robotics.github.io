@@ -21,9 +21,7 @@
 title: Robotics with Raspberry Pi
 email: raspi-robotics@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  A site where I post all of the documentation I've developed while teaching a robotics course. 
 baseurl: "" # the subpath of your site, e.g. /blog
 domain: raspi-robotics.github.io
 url: https://raspi-robotics.github.io # the base hostname & protocol for your site, e.g. http://example.com
@@ -32,7 +30,7 @@ github_username:  raspi-robotics
 # Build settings
 theme: minima
 plugins:
-  - jekyll-feed
+
 
 # Exclude from processing.
 # The following items will not be processed, by default.
